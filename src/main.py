@@ -1,5 +1,5 @@
 from fastapi import FastAPI, Response, status, HTTPException
-from hash_script import encode_number, decode_to_number
+from .hash_script import encode_number, decode_to_number
 
 tags_metadata = [
     {
@@ -30,19 +30,18 @@ app = FastAPI(
 
 @app.get("/encode/{number}", tags=["encode"])
 async def encode(number: int, response: Response):
-    try:
-        if number > 99999999:
-            response.status_code = status.HTTP_400_BAD_REQUEST
-            raise HTTPException(status_code=400, detail="The number cannot be greater than 99999999")
+    if number > 99999999:
+        response.status_code = status.HTTP_400_BAD_REQUEST
+        return HTTPException(status_code=400, detail="The number cannot be greater than 99999999")
 
-        return encode_number(number).rjust(8, '0')
-    except Exception:
-        raise HTTPException(status_code=500, detail="An error occurred while enncoding")
+    return encode_number(number).rjust(8, '0')
 
 
 @app.get("/decode/{code}", tags=["decode"])
-async def decode(code: str):
+async def decode(code: str, response: Response):
     try:
         return decode_to_number(code)
     except Exception:
-        raise HTTPException(status_code=500, detail="An error occurred while decoding")
+        # LOG Exception
+        response.status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
+        return HTTPException(status_code=500, detail="An error occurred while decoding")
