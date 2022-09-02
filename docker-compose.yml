@@ -1,0 +1,14 @@
+version: "3.8"
+services:
+    web:
+      build: .
+      volumes:
+        - .:/code
+      ports:
+        - "80:80"
+
+    test:
+      build: .
+      volumes:
+        - .:/code
+      command: pytest
